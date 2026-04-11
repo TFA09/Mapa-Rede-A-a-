@@ -172,6 +172,7 @@ export default function Map() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
   const [formData, setFormData] = useState({ 
     name: '', 
     type: 'Point of Interest', 
@@ -220,6 +221,18 @@ export default function Map() {
       }
     }
     testConnection();
+  }, []);
+
+  // Keyboard shortcut for Admin Mode (Ctrl + Shift + A)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setIsAdminMode(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleLogin = async () => {
@@ -385,13 +398,15 @@ export default function Map() {
 
       {/* Floating Action Buttons */}
       <div className="absolute bottom-8 right-8 z-[1000] flex flex-col gap-3">
-        <button 
-          onClick={() => setIsManagerOpen(true)}
-          className="p-4 bg-blue-600 text-white rounded-2xl shadow-xl hover:bg-blue-700 transition-colors flex items-center justify-center group"
-          title="Gerenciar Marcações"
-        >
-          <Settings size={20} className="group-hover:rotate-90 transition-transform duration-500" />
-        </button>
+        {isAdminMode && (
+          <button 
+            onClick={() => setIsManagerOpen(true)}
+            className="p-4 bg-blue-600 text-white rounded-2xl shadow-xl hover:bg-blue-700 transition-colors flex items-center justify-center group"
+            title="Gerenciar Marcações"
+          >
+            <Settings size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+          </button>
+        )}
         <button className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xl hover:bg-slate-50 transition-colors text-slate-700">
           <Navigation size={20} />
         </button>
