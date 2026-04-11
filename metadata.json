@@ -1,0 +1,5 @@
+{
+  "name": "Map Explorer",
+  "description": "An interactive map explorer with custom markers and a polished UI.",
+  "requestFramePermissions": []
+}

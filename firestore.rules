@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: locations
+    // Fields:
+    //   - name: string (required)
+    //   - type: string (required)
+    //   - position: list of numbers (required, size 2)
+    //   - description: string (optional)
+    //   - address: string (optional)
+    //   - whatsapp: string (optional)
+    //   - logoUrl: string (optional)
+    //   - isAccredited: bool (optional)
+    //   - createdAt: timestamp (optional)
+    //   - updatedAt: timestamp (optional)
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidLocation(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.type is string && data.type.size() > 0 &&
+             data.position is list && data.position.size() == 2 &&
+             (!('description' in data) || (data.description is string && data.description.size() < 2000)) &&
+             (!('address' in data) || (data.address is string && data.address.size() < 500)) &&
+             (!('whatsapp' in data) || (data.whatsapp is string && data.whatsapp.size() < 50)) &&
+             (!('logoUrl' in data) || (data.logoUrl is string && data.logoUrl.size() < 1000)) &&
+             (!('isAccredited' in data) || data.isAccredited is bool);
+    }
+
+    match /locations/{locationId} {
+      // For this prototype, we allow public read and authenticated write
+      // In a production app, we would restrict writes to admins
+      allow read: if true;
+      allow create, update: if isAuthenticated() && isValidLocation(request.resource.data);
+      allow delete: if isAuthenticated();
+    }
+  }
+}

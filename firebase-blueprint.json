@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "Location": {
+      "title": "Location",
+      "description": "A point of interest on the map",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the location" },
+        "type": { "type": "string", "description": "Category of the location" },
+        "position": { 
+          "type": "array", 
+          "items": { "type": "number" },
+          "description": "Latitude and Longitude coordinates"
+        },
+        "description": { "type": "string", "description": "Detailed description or subtext" },
+        "address": { "type": "string", "description": "Physical address of the location" },
+        "whatsapp": { "type": "string", "description": "WhatsApp number for contact" },
+        "logoUrl": { "type": "string", "description": "URL for the client logo" },
+        "isAccredited": { "type": "boolean", "description": "Whether it is a participant of the network" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "type", "position"]
+    }
+  },
+  "firestore": {
+    "/locations/{locationId}": {
+      "schema": "Location",
+      "description": "Collection of all map pins and locations"
+    }
+  }
+}
