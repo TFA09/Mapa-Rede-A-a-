@@ -173,6 +173,11 @@ export default function Map() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
+
+  const isUserAdmin = useMemo(() => {
+    return user?.email === 'tiagofernandesdealmeida.tfa@gmail.com';
+  }, [user]);
+
   const [formData, setFormData] = useState({ 
     name: '', 
     type: 'Point of Interest', 
@@ -255,7 +260,7 @@ export default function Map() {
 
   const handleAddLocation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!isUserAdmin) return;
 
     const position: [number, number] = [parseFloat(formData.lat), parseFloat(formData.lng)];
     const path = 'locations';
@@ -326,7 +331,7 @@ export default function Map() {
   };
 
   const removeLocation = async (id: string) => {
-    if (!user) return;
+    if (!isUserAdmin) return;
     const path = 'locations';
     try {
       await deleteDoc(doc(db, path, id));
@@ -339,7 +344,7 @@ export default function Map() {
   };
 
   const updateLocationPosition = async (id: string, newPos: [number, number]) => {
-    if (!user) return;
+    if (!isUserAdmin) return;
     const path = 'locations';
     try {
       const docRef = doc(db, path, id);
@@ -434,8 +439,8 @@ export default function Map() {
                 <div className="flex items-center gap-3">
                   <h2 className="text-2xl font-bold text-slate-900">Gerenciador</h2>
                   {user && (
-                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold uppercase rounded-md">
-                      Autenticado
+                    <span className={`px-2 py-0.5 ${isUserAdmin ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'} text-[10px] font-bold uppercase rounded-md`}>
+                      {isUserAdmin ? 'Administrador' : 'Usuário'}
                     </span>
                   )}
                 </div>
@@ -467,22 +472,30 @@ export default function Map() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {!user ? (
+                {!isUserAdmin ? (
                   <div className="text-center py-12 space-y-4">
                     <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
                       <Settings size={32} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-slate-900">Acesso Restrito</h3>
-                      <p className="text-slate-500 text-sm">Faça login com sua conta Google para gerenciar as marcações.</p>
+                      <h3 className="text-lg font-bold text-slate-900">
+                        {!user ? 'Acesso Restrito' : 'Acesso Negado'}
+                      </h3>
+                      <p className="text-slate-500 text-sm">
+                        {!user 
+                          ? 'Faça login com sua conta Google para gerenciar as marcações.' 
+                          : 'Você não tem permissão para gerenciar as marcações deste mapa.'}
+                      </p>
                     </div>
-                    <button 
-                      onClick={handleLogin}
-                      className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 inline-flex items-center gap-2"
-                    >
-                      <LogIn size={20} />
-                      Login com Google
-                    </button>
+                    {!user && (
+                      <button 
+                        onClick={handleLogin}
+                        className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 inline-flex items-center gap-2"
+                      >
+                        <LogIn size={20} />
+                        Login com Google
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <>

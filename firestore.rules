@@ -24,6 +24,12 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.email == "tiagofernandesdealmeida.tfa@gmail.com" && 
+             request.auth.token.email_verified == true;
+    }
+
     function isValidLocation(data) {
       return data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
              data.type is string && data.type.size() > 0 &&
@@ -36,11 +42,9 @@ service cloud.firestore {
     }
 
     match /locations/{locationId} {
-      // For this prototype, we allow public read and authenticated write
-      // In a production app, we would restrict writes to admins
       allow read: if true;
-      allow create, update: if isAuthenticated() && isValidLocation(request.resource.data);
-      allow delete: if isAuthenticated();
+      allow create, update: if isAdmin() && isValidLocation(request.resource.data);
+      allow delete: if isAdmin();
     }
   }
 }
