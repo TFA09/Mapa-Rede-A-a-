@@ -380,7 +380,7 @@ export default function Map() {
               key={loc.id} 
               position={loc.position as [number, number]}
               icon={createCustomIcon(loc.type)}
-              draggable={true}
+              draggable={isUserAdmin}
               eventHandlers={{
                 click: () => setSelectedLocation(loc),
                 dragend: (e) => {
